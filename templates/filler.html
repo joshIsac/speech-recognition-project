@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Filler Words</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            background: url('static/f5.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #383c38;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            width: 80%;
+        }
+        header h1 {
+            margin: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        section {
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-bottom: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        p {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Remove Filler Words from Speech</h1>
+    </header>
+    <div class="container">
+        <section>
+            <h2>Record and Process Speech</h2>
+            <button id="startButton" onclick="startRecording()">Start Recording</button>
+            <button id="stopButton" onclick="stopRecording()" style="display: none;">Stop Recording</button>
+            <p id="status">Status: Ready</p>
+            <div class="result">
+                <h3>Results:</h3>
+                <p><strong>Original Phrase:</strong> <span id="originalPhrase"></span></p>
+                <p><strong>Updated Phrase:</strong> <span id="updatedPhrase"></span></p>
+            </div>
+        </section>
+        <button onclick="goBack()">Back</button>
+        <footer>
+            <p>&copy; 2024 SpeechInsights. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const fillerWords = ["um", "uh", "like", "you know", "i mean", "sort of", 
+        "kind of", "actually", "basically", "literally", 
+        "just", "so", "well", "er", "ah", "hmm", 
+        "right", "okay", "alright", "you see", "you know what I mean"];
+        let recognition;
+        let isRecording = false;
+
+        // Initialize Speech Recognition
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = function() {
+                document.getElementById('status').innerText = 'Recording...';
+            };
+
+            recognition.onend = function() {
+                document.getElementById('status').innerText = 'Recording stopped.';
+                isRecording = false;
+                document.getElementById('startButton').style.display = 'block';
+                document.getElementById('stopButton').style.display = 'none';
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('originalPhrase').innerText = transcript;
+
+                // Remove filler words
+                const updatedText = transcript.split(" ").filter(word => !fillerWords.includes(word.toLowerCase())).join(" ");
+                document.getElementById('updatedPhrase').innerText = updatedText;
+            };
+        } else {
+            alert("Speech Recognition API is not supported in this browser. Please use Chrome or Edge.");
+        }
+
+        // Start Recording
+        function startRecording() {
+            if (!isRecording) {
+                recognition.start();
+                isRecording = true;
+                document.getElementById('startButton').style.display = 'none';
+                document.getElementById('stopButton').style.display = 'block';
+            }
+        }
+
+        // Stop Recording
+        function stopRecording() {
+            if (isRecording) {
+                recognition.stop();
+            }
+        }
+
+        // Back button
+        function goBack() {
+            window.history.back(); // Go to the previous page
+        }
+    </script>
+</body>
+</html>
